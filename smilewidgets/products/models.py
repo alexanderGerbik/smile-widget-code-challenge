@@ -4,11 +4,18 @@ from django.db.models import Q
 
 class Product(models.Model):
     name = models.CharField(max_length=25, help_text='Customer facing name of product')
-    code = models.CharField(max_length=10, help_text='Internal facing reference to product')
+    code = models.CharField(max_length=10, help_text='Internal facing reference to product', unique=True)
     price = models.PositiveIntegerField(help_text='Price of product in cents')
 
     def __str__(self):
         return '{} - {}'.format(self.name, self.code)
+
+    def get_price_on_date(self, date):
+        intervals = ProductPriceSchedule.find_applicable(date)
+        if not intervals:
+            return self.price
+        interval = intervals[0]
+        return ProductPrice.objects.get(schedule=interval, product=self).price
 
 
 class Interval(models.Model):
@@ -32,7 +39,7 @@ class Interval(models.Model):
 
 
 class GiftCard(Interval):
-    code = models.CharField(max_length=30)
+    code = models.CharField(max_length=30, unique=True)
     amount = models.PositiveIntegerField(help_text='Value of gift card in cents')
 
     def __str__(self):
