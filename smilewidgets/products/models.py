@@ -22,3 +22,21 @@ class GiftCard(models.Model):
     @property
     def formatted_amount(self):
         return '${0:.2f}'.format(self.amount / 100)
+
+class ProductPriceSchedule(models.Model):
+    name = models.CharField(max_length=25, help_text='Price schedule description')
+    # both date_start and date_end are inclusive
+    date_start = models.DateField()
+    date_end = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return '{} - {}-{}'.format(self.name, self.date_start, self.date_end or '∞')
+
+
+class ProductPrice(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    schedule = models.ForeignKey(ProductPriceSchedule, on_delete=models.CASCADE)
+    price = models.PositiveIntegerField(help_text='Price of product in cents during specific period')
+
+    def __str__(self):
+        return '{}({}) - {}'.format(self.product, self.price, self.schedule)
