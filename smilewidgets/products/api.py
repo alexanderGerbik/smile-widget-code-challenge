@@ -1,12 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from djangorestframework_camel_case.util import underscoreize
 
 from .serializers import GetPriceSerializer
 
 
 class GetPrice(APIView):
-    def post(self, request, format=None):
-        serializer = GetPriceSerializer(data=request.data)
+    def get(self, request, format=None):
+        data = underscoreize(request.query_params)
+        serializer = GetPriceSerializer(data=data)
         serializer.is_valid(raise_exception=True)
 
         product = serializer.validated_data['product_code']

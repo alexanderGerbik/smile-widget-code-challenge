@@ -65,7 +65,7 @@ class GetPriceTestCase(APITestCase):
             'productCode': 'big_widget',
             'date': '2018-11-20',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.get(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['productPrice'], '$1000.00')
 
@@ -75,7 +75,7 @@ class GetPriceTestCase(APITestCase):
             'productCode': 'big_widget',
             'date': '2018-11-24',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.get(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['productPrice'], '$800.00')
 
@@ -85,7 +85,7 @@ class GetPriceTestCase(APITestCase):
             'productCode': 'big_widget',
             'date': '2019-01-22',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.get(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['productPrice'], '$1200.00')
 
@@ -95,7 +95,7 @@ class GetPriceTestCase(APITestCase):
             'productCode': 'sm_widget',
             'date': '2018-11-20',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.get(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['productPrice'], '$99.00')
 
@@ -105,7 +105,7 @@ class GetPriceTestCase(APITestCase):
             'productCode': 'sm_widget',
             'date': '2018-11-24',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.get(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['productPrice'], '$0.00')
 
@@ -115,7 +115,7 @@ class GetPriceTestCase(APITestCase):
             'productCode': 'sm_widget',
             'date': '2019-01-22',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.get(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['productPrice'], '$125.00')
 
@@ -126,7 +126,7 @@ class GetPriceTestCase(APITestCase):
             'date': '2019-01-01',
             'giftCardCode': '250OFF',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.get(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['productPrice'], '$950.00')
 
@@ -137,7 +137,7 @@ class GetPriceTestCase(APITestCase):
             'date': '2019-01-01',
             'giftCardCode': '250OFF',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.get(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['productPrice'], '$0.00')
 
@@ -148,7 +148,7 @@ class GetPriceTestCase(APITestCase):
             'date': '2019-01-01',
             'giftCardCode': '250OFF',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.get(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.json(), {'productCode': ['Product with such code doesn\'t exist.']})
 
@@ -159,7 +159,7 @@ class GetPriceTestCase(APITestCase):
             'date': '2019-01-01',
             'giftCardCode': '250Oqw',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.get(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.json(), {'giftCardCode': ['Gift card with such code doesn\'t exist.']})
 
@@ -170,7 +170,7 @@ class GetPriceTestCase(APITestCase):
             'date': '2019-01-22',
             'giftCardCode': '250OFF',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.get(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.json(), {
             'nonFieldErrors': ["Gift card '250OFF - $250.00' is not applicable for this date: 2019-01-22"],
