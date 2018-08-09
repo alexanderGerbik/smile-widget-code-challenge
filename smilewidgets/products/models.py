@@ -42,6 +42,9 @@ class GiftCard(Interval):
     code = models.CharField(max_length=30, unique=True)
     amount = models.PositiveIntegerField(help_text='Value of gift card in cents')
 
+    def apply(self, price):
+        return max(0, price - self.amount)
+
     def __str__(self):
         return '{} - {}'.format(self.code, self.formatted_amount)
 
