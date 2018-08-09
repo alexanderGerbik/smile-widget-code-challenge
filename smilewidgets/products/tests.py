@@ -150,7 +150,7 @@ class GetPriceTestCase(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json(), ["Product with such code doesn't exist."])
+        self.assertEqual(response.json(), {'productCode': ['Product with such code doesn\'t exist.']})
 
     def test_gift_card_doesnt_exists__error(self):
         url = '/api/get-price'
@@ -161,7 +161,7 @@ class GetPriceTestCase(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json(), ["Gift card with such code doesn't exist."])
+        self.assertEqual(response.json(), {'giftCardCode': ['Gift card with such code doesn\'t exist.']})
 
     def test_gift_card_not_appicable__error(self):
         url = '/api/get-price'
@@ -172,4 +172,6 @@ class GetPriceTestCase(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json(), ["Gift card is not applicable for this date: 2019-01-22"])
+        self.assertEqual(response.json(), {
+            'nonFieldErrors': ["Gift card '250OFF - $250.00' is not applicable for this date: 2019-01-22"],
+        })
