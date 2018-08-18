@@ -11,11 +11,14 @@ class Product(models.Model):
         return '{} - {}'.format(self.name, self.code)
 
     def get_price_on_date(self, date):
-        intervals = ProductPriceSchedule.find_applicable(date)
-        if not intervals:
-            return self.price
-        interval = intervals[0]
-        return ProductPrice.objects.get(schedule=interval, product=self).price
+        schedules = ProductPriceSchedule.find_applicable(date)
+        product_price = (
+            ProductPrice.objects
+            .filter(schedule__in=schedules, product=self)
+            .order_by('price')
+            .first()
+        )
+        return product_price.price if product_price else self.price
 
 
 class Interval(models.Model):

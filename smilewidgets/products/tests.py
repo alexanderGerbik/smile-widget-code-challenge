@@ -4,7 +4,7 @@ from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from .models import ProductPriceSchedule, GiftCard
+from .models import Product, ProductPrice, ProductPriceSchedule, GiftCard
 
 
 class ContainingIntervalTestCase(TestCase):
@@ -24,6 +24,34 @@ class ContainingIntervalTestCase(TestCase):
             with self.subTest(date=dt, expected=expected):
                 actual = ProductPriceSchedule.find_applicable(dt)
                 self.assertQuerysetEqual(actual, expected, ordered=False)
+
+    def test_ambiguous_price__choose_lowest(self):
+        prod = Product.objects.get(code='big_widget')
+        expen = ProductPriceSchedule.objects.create(
+            name='expensive',
+            date_start=date(2018, 5, 3),
+            date_end=date(2018, 5, 7)
+        )
+        cheap = ProductPriceSchedule.objects.create(
+            name='cheap',
+            date_start=date(2018, 5, 1),
+            date_end=date(2018, 5, 5)
+        )
+        ProductPrice.objects.create(price=70000, schedule=expen, product=prod)
+        ProductPrice.objects.create(price=50000, schedule=cheap, product=prod)
+
+        price = prod.get_price_on_date(date(2018, 5, 4))
+
+        self.assertEqual(price, 50000)
+
+    def test_no_price_for_product__return_default(self):
+        day = date(2018, 5, 5)
+        ProductPriceSchedule.objects.create(name='promo', date_start=day, date_end=day)
+        product = Product.objects.get(code='big_widget')
+
+        price = product.get_price_on_date(day)
+
+        self.assertEqual(price, product.price)
 
     def test_gift_card(self):
         cases = (
