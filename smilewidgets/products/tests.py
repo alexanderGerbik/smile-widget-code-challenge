@@ -7,10 +7,10 @@ from rest_framework import status
 from .models import Product, ProductPrice, ProductPriceSchedule, GiftCard
 
 
-class ContainingIntervalTestCase(TestCase):
+class IntervalTestCase(TestCase):
     fixtures = ['0001_fixtures.json']
 
-    def test_product_price_schedule(self):
+    def test_product_price_schedule_positive_cases(self):
         cases = (
             (date(2018, 5, 5), []),
             (date(2018, 11, 22), []),
@@ -53,7 +53,7 @@ class ContainingIntervalTestCase(TestCase):
 
         self.assertEqual(price, product.price)
 
-    def test_gift_card(self):
+    def test_gift_card_positive_cases(self):
         cases = (
             (date(2018, 6, 30), []),
             (date(2018, 7, 1), [
@@ -84,122 +84,66 @@ class ContainingIntervalTestCase(TestCase):
                 self.assertQuerysetEqual(actual, expected, ordered=False)
 
 
-class GetPriceTestCase(APITestCase):
+class GetPriceAPITestCase(APITestCase):
     fixtures = ['0001_fixtures.json']
 
-    def test_1(self):
-        url = '/api/get-price'
-        data = {
-            'productCode': 'big_widget',
-            'date': '2018-11-20',
-        }
-        response = self.client.get(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['productPrice'], '$1000.00')
+    def test_positive_cases(self):
+        cases = (
+            ({'productCode': 'big_widget', 'date': '2018-11-20'}, '$1000.00'),
+            ({'productCode': 'big_widget', 'date': '2018-11-24'}, '$800.00'),
+            ({'productCode': 'big_widget', 'date': '2019-01-22'}, '$1200.00'),
+            ({'productCode': 'sm_widget', 'date': '2018-11-20'}, '$99.00'),
+            ({'productCode': 'sm_widget', 'date': '2018-11-24'}, '$0.00'),
+            ({'productCode': 'sm_widget', 'date': '2019-01-22'}, '$125.00'),
+            ({   # apply gift card
+                 'productCode': 'big_widget',
+                 'date': '2019-01-01',
+                 'giftCardCode': '250OFF',
+             }, '$950.00'),
+            ({   # apply gift card on cheap product so price becomes negative
+                 'productCode': 'sm_widget',
+                 'date': '2019-01-01',
+                 'giftCardCode': '250OFF',
+             }, '$0.00'),
+        )
+        for payload, expected in cases:
+            with self.subTest(payload=payload, expected=expected):
+                response = self.client.get('/api/get-price', payload)
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(response.json()['productPrice'], expected)
 
-    def test_2(self):
-        url = '/api/get-price'
-        data = {
-            'productCode': 'big_widget',
-            'date': '2018-11-24',
-        }
-        response = self.client.get(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['productPrice'], '$800.00')
-
-    def test_3(self):
-        url = '/api/get-price'
-        data = {
-            'productCode': 'big_widget',
-            'date': '2019-01-22',
-        }
-        response = self.client.get(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['productPrice'], '$1200.00')
-
-    def test_4(self):
-        url = '/api/get-price'
-        data = {
-            'productCode': 'sm_widget',
-            'date': '2018-11-20',
-        }
-        response = self.client.get(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['productPrice'], '$99.00')
-
-    def test_5(self):
-        url = '/api/get-price'
-        data = {
-            'productCode': 'sm_widget',
-            'date': '2018-11-24',
-        }
-        response = self.client.get(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['productPrice'], '$0.00')
-
-    def test_6(self):
-        url = '/api/get-price'
-        data = {
-            'productCode': 'sm_widget',
-            'date': '2019-01-22',
-        }
-        response = self.client.get(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['productPrice'], '$125.00')
-
-    def test_apply_gift_card(self):
-        url = '/api/get-price'
-        data = {
-            'productCode': 'big_widget',
-            'date': '2019-01-01',
-            'giftCardCode': '250OFF',
-        }
-        response = self.client.get(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['productPrice'], '$950.00')
-
-    def test_apply_gift_card_small(self):
-        url = '/api/get-price'
-        data = {
-            'productCode': 'sm_widget',
-            'date': '2019-01-01',
-            'giftCardCode': '250OFF',
-        }
-        response = self.client.get(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['productPrice'], '$0.00')
-
-    def test_product_doesnt_exists__error(self):
-        url = '/api/get-price'
-        data = {
-            'productCode': 'qwe',
-            'date': '2019-01-01',
-            'giftCardCode': '250OFF',
-        }
-        response = self.client.get(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json(), {'productCode': ['Product with such code doesn\'t exist.']})
-
-    def test_gift_card_doesnt_exists__error(self):
-        url = '/api/get-price'
-        data = {
-            'productCode': 'sm_widget',
-            'date': '2019-01-01',
-            'giftCardCode': '250Oqw',
-        }
-        response = self.client.get(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json(), {'giftCardCode': ['Gift card with such code doesn\'t exist.']})
-
-    def test_gift_card_not_appicable__error(self):
-        url = '/api/get-price'
-        data = {
-            'productCode': 'big_widget',
-            'date': '2019-01-22',
-            'giftCardCode': '250OFF',
-        }
-        response = self.client.get(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json(), {
-            'nonFieldErrors': ["Gift card '250OFF - $250.00' is not applicable for this date: 2019-01-22"],
-        })
+    def test_negative_cases(self):
+        cases = (
+            ({
+                 'productCode': 'qwe',
+                 'date': '2019-01-01',
+                 'giftCardCode': '250OFF',
+             }, {'productCode': ['Product with such code doesn\'t exist.']}),
+            ({
+                 'productCode': 'sm_widget',
+                 'date': '2019-01-01',
+                 'giftCardCode': '250Oqw',
+             },
+             {'giftCardCode': ['Gift card with such code doesn\'t exist.']}),
+            ({
+                 'productCode': 'big_widget',
+                 'date': '2019-01-22',
+                 'giftCardCode': '250OFF',
+             }, {
+                 'nonFieldErrors': [
+                     "Gift card '250OFF - $250.00'"
+                     " is not applicable for this date: 2019-01-22"
+                 ],
+             }),
+            ({
+                 'date': '2019-01-01',
+             }, {'productCode': ['This field is required.']}),
+            ({
+                 'productCode': 'sm_widget',
+             }, {'date': ['This field is required.']}),
+        )
+        for payload, expected in cases:
+            with self.subTest(payload=payload, expected=expected):
+                response = self.client.get('/api/get-price', payload)
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(response.json(), expected)
