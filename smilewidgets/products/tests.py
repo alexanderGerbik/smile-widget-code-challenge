@@ -22,7 +22,7 @@ class IntervalTestCase(TestCase):
         )
         for dt, expected in cases:
             with self.subTest(date=dt, expected=expected):
-                actual = ProductPriceSchedule.find_applicable(dt)
+                actual = ProductPriceSchedule.objects.applicable(dt)
                 self.assertQuerysetEqual(actual, expected, ordered=False)
 
     def test_ambiguous_price__choose_lowest(self):
@@ -80,7 +80,7 @@ class IntervalTestCase(TestCase):
         )
         for dt, expected in cases:
             with self.subTest(date=dt, expected=expected):
-                actual = GiftCard.find_applicable(dt)
+                actual = GiftCard.objects.applicable(dt)
                 self.assertQuerysetEqual(actual, expected, ordered=False)
 
 

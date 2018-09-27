@@ -12,7 +12,7 @@ class Product(models.Model):
         return '{} - {}'.format(self.name, self.code)
 
     def get_price_on_date(self, date):
-        schedules = ProductPriceSchedule.find_applicable(date)
+        schedules = ProductPriceSchedule.objects.applicable(date)
         product_price = (
             ProductPrice.objects
             .filter(schedule__in=schedules, product=self)
