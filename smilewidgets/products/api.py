@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from djangorestframework_camel_case.util import underscoreize
 
 from .serializers import GetPriceSerializer
+from .utils import underscoreize
 
 
 class GetPrice(APIView):
