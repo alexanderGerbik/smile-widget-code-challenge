@@ -11,9 +11,9 @@ class GetPrice(APIView):
         serializer = GetPriceSerializer(data=data)
         serializer.is_valid(raise_exception=True)
 
-        product = serializer.validated_data['product_code']
+        product = serializer.validated_data['product']
         date = serializer.validated_data['date']
-        gift_card = serializer.validated_data.get('gift_card_code')
+        gift_card = serializer.validated_data.get('gift_card')
 
         price = product.get_price_on_date(date)
         if gift_card:

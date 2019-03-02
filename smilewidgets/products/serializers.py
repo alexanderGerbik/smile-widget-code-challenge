@@ -5,9 +5,9 @@ from .models import Product, GiftCard
 
 
 class GetPriceSerializer(serializers.Serializer):
-    product_code = serializers.CharField(max_length=10)
+    product_code = serializers.CharField(max_length=10, source='product')
     date = serializers.DateField()
-    gift_card_code = serializers.CharField(max_length=30, required=False)
+    gift_card_code = serializers.CharField(max_length=30, source='gift_card', required=False)
 
     def validate_product_code(self, value):
         try:
@@ -23,7 +23,7 @@ class GetPriceSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         date = attrs['date']
-        gift_card = attrs.get('gift_card_code')
+        gift_card = attrs.get('gift_card')
         if gift_card:
             if not gift_card.is_applicable(date):
                 raise ValidationError("Gift card '{}' is not applicable for this date: {}".format(gift_card, date))
