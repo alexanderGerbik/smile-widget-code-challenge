@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .serializers import GetPriceSerializer
-from .utils import underscoreize
+from .utils import underscoreize, format_currency
 
 
 class GetPrice(APIView):
@@ -18,5 +18,4 @@ class GetPrice(APIView):
         price = product.get_price_on_date(date)
         if gift_card:
             price = gift_card.apply(price)
-        price = '${0:.2f}'.format(price / 100)
-        return Response({'product_price': price})
+        return Response({'product_price': format_currency(price)})

@@ -1,5 +1,6 @@
 from django.db import models
 
+from ..utils import format_currency
 from .interval import Interval
 
 
@@ -34,7 +35,7 @@ class GiftCard(Interval):
 
     @property
     def formatted_amount(self):
-        return '${0:.2f}'.format(self.amount / 100)
+        return format_currency(self.amount)
 
 
 class ProductPriceSchedule(Interval):
