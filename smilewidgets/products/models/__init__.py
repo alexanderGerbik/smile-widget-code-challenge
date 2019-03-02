@@ -42,7 +42,7 @@ class ProductPriceSchedule(Interval):
     name = models.CharField(max_length=25, help_text='Price schedule description')
 
     def __str__(self):
-        return '{} - {}-{}'.format(self.name, self.date_start, self.date_end or '∞')
+        return '{} - {}'.format(self.name, super().__str__())
 
 
 class ProductPrice(models.Model):

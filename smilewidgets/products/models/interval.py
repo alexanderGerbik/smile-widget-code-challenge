@@ -22,6 +22,9 @@ class Interval(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        return '{}-{}'.format(self.date_start, self.date_end or '∞')
+
     def is_applicable(self, date):
         return (self.date_start <= date
                 and (self.date_end is None or date <= self.date_end))
