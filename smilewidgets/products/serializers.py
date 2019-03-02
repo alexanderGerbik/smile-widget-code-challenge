@@ -23,8 +23,8 @@ class GetPriceSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         date = attrs['date']
-        gift_card = attrs.get('gift_card_code', None)
-        if gift_card is not None:
+        gift_card = attrs.get('gift_card_code')
+        if gift_card:
             if not gift_card.is_applicable(date):
                 raise ValidationError("Gift card '{}' is not applicable for this date: {}".format(gift_card, date))
         return attrs

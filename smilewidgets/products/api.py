@@ -13,10 +13,10 @@ class GetPrice(APIView):
 
         product = serializer.validated_data['product_code']
         date = serializer.validated_data['date']
-        gift_card = serializer.validated_data.get('gift_card_code', None)
+        gift_card = serializer.validated_data.get('gift_card_code')
 
         price = product.get_price_on_date(date)
-        if gift_card is not None:
+        if gift_card:
             price = gift_card.apply(price)
         price = '${0:.2f}'.format(price / 100)
         return Response({'product_price': price})
