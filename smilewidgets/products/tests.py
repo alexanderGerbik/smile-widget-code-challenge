@@ -118,13 +118,13 @@ class GetPriceAPITestCase(APITestCase):
                  'productCode': 'qwe',
                  'date': '2019-01-01',
                  'giftCardCode': '250OFF',
-             }, {'productCode': ['Product with such code doesn\'t exist.']}),
+             }, {'productCode': ['Object with code=qwe does not exist.']}),
             ({
                  'productCode': 'sm_widget',
                  'date': '2019-01-01',
                  'giftCardCode': '250Oqw',
              },
-             {'giftCardCode': ['Gift card with such code doesn\'t exist.']}),
+             {'giftCardCode': ['Object with code=250Oqw does not exist.']}),
             ({
                  'productCode': 'big_widget',
                  'date': '2019-01-22',
